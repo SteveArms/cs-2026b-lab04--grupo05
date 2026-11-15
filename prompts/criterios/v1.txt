@@ -1,0 +1,1 @@
+Escribe criterios de aceptación en formato Gherkin para esta historia de usuario de VotoEPIS: {{historia}}

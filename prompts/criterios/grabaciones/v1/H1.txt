@@ -1,0 +1,2 @@
+Criterios de aceptación:
+1. Dado que el estudiante existe en la tabla SQL usuarios_padron, cuando inicia sesión en el endpoint /api/login, entonces accede a la cédula.

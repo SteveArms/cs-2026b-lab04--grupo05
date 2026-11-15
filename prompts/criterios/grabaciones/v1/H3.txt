@@ -1,0 +1,1 @@
+1. Dado que el comité presiona cerrar, entonces se genera el acta.

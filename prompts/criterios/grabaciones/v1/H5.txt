@@ -1,0 +1,1 @@
+Dado el hash SHA-256 en la tabla auditoria, cuando el auditor consulta, ve el código.

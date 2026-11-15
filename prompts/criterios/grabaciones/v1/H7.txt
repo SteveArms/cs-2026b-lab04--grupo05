@@ -1,0 +1,2 @@
+Criterios para base de datos:
+1. Dado que PostgreSQL tiene índices B-Tree, cuando se consulta, responde rápido.

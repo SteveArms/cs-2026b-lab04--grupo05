@@ -1,0 +1,1 @@
+El sistema permite descargar un PDF desde la API de constancias.
