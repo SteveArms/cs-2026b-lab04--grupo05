@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CriteriosAceptacionVotoEPIS",
+  "description": "Esquema JSON estricto para criterios de aceptación en Gherkin (VotoEPIS - Lab 09)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "historia_id",
+    "invest_ok",
+    "preguntas",
+    "escenarios"
+  ],
+  "properties": {
+    "historia_id": {
+      "type": "string",
+      "description": "Identificador de la historia de usuario evaluada (ej. H1)"
+    },
+    "invest_ok": {
+      "type": "boolean",
+      "description": "Indica si la historia cumple con los criterios INVEST"
+    },
+    "preguntas": {
+      "type": "array",
+      "description": "Preguntas aclaratorias al Product Owner si la historia no cumple INVEST",
+      "items": {
+        "type": "string",
+        "minLength": 5
+      }
+    },
+    "escenarios": {
+      "type": "array",
+      "description": "Lista de escenarios en formato Gherkin generados para historias válidas",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "titulo",
+          "tipo",
+          "dado",
+          "cuando",
+          "entonces"
+        ],
+        "properties": {
+          "titulo": {
+            "type": "string",
+            "minLength": 5,
+            "description": "Título descriptivo del escenario de prueba"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "exito",
+              "error",
+              "borde"
+            ],
+            "description": "Clasificación del escenario"
+          },
+          "dado": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            },
+            "description": "Precondiciones del escenario (Given)"
+          },
+          "cuando": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Acción desencadenante ejecutada por el actor (When)"
+          },
+          "entonces": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            },
+            "description": "Postcondiciones y resultados esperados verificables (Then)"
+          }
+        }
+      }
+    }
+  }
+}
