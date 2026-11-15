@@ -1,0 +1,1 @@
+{"fragmento_id": "C4", "seguro": false, "resumen": "Sin autorizaci\u00f3n", "hallazgos": [{"linea": 1, "regla": "SEC-04-AUTH-BYPASS", "severidad": "alta", "descripcion": "Sin decorador", "recomendacion": "Validar rol"}]}

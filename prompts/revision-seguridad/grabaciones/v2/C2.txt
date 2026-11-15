@@ -1,0 +1,1 @@
+{"fragmento_id": "C2", "seguro": false, "resumen": "Falla de privacidad", "hallazgos": [{"linea": 2, "regla": "REGLA-PRIVACIDAD", "severidad": "alta", "descripcion": "Guarda estudiante_id", "recomendacion": "Separar tablas"}]}

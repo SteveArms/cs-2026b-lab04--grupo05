@@ -1,0 +1,1 @@
+{"fragmento_id": "C8", "seguro": true, "resumen": "C\u00f3digo auditado y seguro", "hallazgos": []}

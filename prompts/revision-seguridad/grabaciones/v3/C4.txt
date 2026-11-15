@@ -1,0 +1,1 @@
+{"fragmento_id": "C4", "seguro": false, "resumen": "Endpoint cr\u00edtico sin control de acceso.", "hallazgos": [{"linea": 1, "regla": "SEC-04-AUTH-BYPASS", "severidad": "alta", "descripcion": "cerrar_mesa_view no valida autenticaci\u00f3n ni rol de Comit\u00e9 Electoral.", "recomendacion": "Exigir autenticaci\u00f3n y verificaci\u00f3n expl\u00edcita de rol autorizado."}]}

@@ -1,0 +1,1 @@
+{"fragmento_id": "C3", "seguro": false, "resumen": "Clave hardcodeada", "hallazgos": [{"linea": 2, "regla": "SEC-03-HARDCODE-SECRET", "severidad": "alta", "descripcion": "Clave en texto plano", "recomendacion": "Usar os.environ"}]}

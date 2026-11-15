@@ -1,0 +1,1 @@
+Deberías usar variables de entorno para la clave.

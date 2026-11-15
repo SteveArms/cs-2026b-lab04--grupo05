@@ -1,0 +1,35 @@
+{
+  "type": "object",
+  "required": ["fragmento_id", "seguro", "resumen", "hallazgos"],
+  "additionalProperties": false,
+  "properties": {
+    "fragmento_id": { "type": "string" },
+    "seguro": { "type": "boolean" },
+    "resumen": { "type": "string", "minLength": 5 },
+    "hallazgos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["linea", "regla", "severidad", "descripcion", "recomendacion"],
+        "additionalProperties": false,
+        "properties": {
+          "linea": { "type": "integer", "minimum": 1 },
+          "regla": {
+            "type": "string",
+            "enum": [
+              "SEC-01-SQLI",
+              "SEC-02-SECRETO-VOTO",
+              "SEC-03-HARDCODE-SECRET",
+              "SEC-04-AUTH-BYPASS",
+              "SEC-05-DOBLE-VOTO",
+              "SEC-06-INTEGRIDAD-HASH"
+            ]
+          },
+          "severidad": { "type": "string", "enum": ["alta", "media", "baja"] },
+          "descripcion": { "type": "string", "minLength": 5 },
+          "recomendacion": { "type": "string", "minLength": 5 }
+        }
+      }
+    }
+  }
+}

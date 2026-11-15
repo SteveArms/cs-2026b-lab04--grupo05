@@ -1,0 +1,1 @@
+{"fragmento_id": "C3", "seguro": false, "resumen": "Secreto criptogr\u00e1fico hardcodeado.", "hallazgos": [{"linea": 2, "regla": "SEC-03-HARDCODE-SECRET", "severidad": "alta", "descripcion": "La clave SECRET_KEY_VOTO est\u00e1 escrita en texto plano en el c\u00f3digo.", "recomendacion": "Cargar la clave desde variables de entorno seguras."}]}

@@ -1,0 +1,1 @@
+{"fragmento_id": "C7", "seguro": false, "resumen": "Clave fija", "hallazgos": [{"linea": 1, "regla": "SEC-03-HARDCODE-SECRET", "severidad": "alta", "descripcion": "Clave fija", "recomendacion": "Usar env"}]}

@@ -1,0 +1,1 @@
+{"fragmento_id": "C1", "seguro": false, "resumen": "SQL Injection", "hallazgos": [{"linea": 2, "regla": "SEC-01-SQLI", "severidad": "alta", "descripcion": "f-string en SQL", "recomendacion": "Usar par\u00e1metros"}]}

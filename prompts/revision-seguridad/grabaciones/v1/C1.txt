@@ -1,0 +1,1 @@
+Hay una inyección SQL en la consulta.
