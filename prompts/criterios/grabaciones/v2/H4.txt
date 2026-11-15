@@ -1,0 +1,1 @@
+{"historia_id": "H4", "invest_ok": true, "preguntas": [], "escenarios": [{"titulo": "Descargar constancia", "tipo": "exito", "dado": ["voto emitido"], "cuando": "solicita constancia", "entonces": ["descarga comprobante"]}, {"titulo": "Sin voto", "tipo": "error", "dado": ["estudiante sin voto"], "cuando": "solicita constancia", "entonces": ["muestra error"]}]}

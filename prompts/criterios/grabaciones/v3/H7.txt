@@ -1,0 +1,1 @@
+{"historia_id": "H7", "invest_ok": false, "preguntas": ["\u00bfQu\u00e9 necesidad funcional del votante o del comit\u00e9 se busca resolver con esta mejora?", "\u00bfCu\u00e1l es el tiempo m\u00e1ximo de respuesta esperado por el usuario?"], "escenarios": []}

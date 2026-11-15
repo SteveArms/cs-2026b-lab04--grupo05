@@ -1,0 +1,1 @@
+{"historia_id": "H7", "invest_ok": true, "preguntas": [], "escenarios": [{"titulo": "Consulta r\u00e1pida", "tipo": "exito", "dado": ["tabla con \u00edndices"], "cuando": "consulta padr\u00f3n", "entonces": ["responde en menos de 1s"]}]}

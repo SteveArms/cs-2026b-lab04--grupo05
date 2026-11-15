@@ -1,0 +1,1 @@
+{"historia_id": "H6", "invest_ok": true, "preguntas": [], "escenarios": [{"titulo": "Generar OTP", "tipo": "exito", "dado": ["IdP ca\u00eddo"], "cuando": "solicita OTP", "entonces": ["recibe c\u00f3digo"]}, {"titulo": "OTP expirado", "tipo": "error", "dado": ["c\u00f3digo vencido"], "cuando": "ingresa OTP", "entonces": ["acceso denegado"]}]}
