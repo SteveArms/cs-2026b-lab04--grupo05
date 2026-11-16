@@ -1,0 +1,1 @@
+{"fragmento_id": "C6", "seguro": true, "resumen": "Validaci\u00f3n de OTP con comparaci\u00f3n en tiempo constante; sin vulnerabilidades del cat\u00e1logo.", "hallazgos": []}

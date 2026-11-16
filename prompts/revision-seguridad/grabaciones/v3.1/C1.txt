@@ -1,0 +1,1 @@
+{"fragmento_id": "C1", "seguro": false, "resumen": "Inyecci\u00f3n SQL en la b\u00fasqueda del padr\u00f3n.", "hallazgos": [{"linea": 2, "regla": "SEC-01-SQLI", "severidad": "alta", "descripcion": "El dni se interpola con f-string dentro de la consulta SQL.", "recomendacion": "Usar una consulta parametrizada con placeholders."}]}

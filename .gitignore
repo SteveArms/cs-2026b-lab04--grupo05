@@ -2,3 +2,4 @@ docs/architecture/c4/.structurizr
 tests/__pycache__/
 src/votacion/__pycache__/
 src/votacion/antes/__pycache__/
+docs/architecture/atam-lite.md

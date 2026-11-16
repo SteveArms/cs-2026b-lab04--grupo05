@@ -5,7 +5,9 @@ BASE = pathlib.Path(__file__).parent
 def call_api(prompt, options, context):
     vars_dict = context.get("vars", {})
     case_id = vars_dict.get("id", "C1")
-    if "<codigo" in prompt:
+    if "# DEFENSAS" in prompt:
+        version = "v3.1"
+    elif "<codigo" in prompt:
         version = "v3"
     elif "Revisa el código y reporta vulnerabilidades en JSON" in prompt:
         version = "v2"

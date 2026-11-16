@@ -1,0 +1,1 @@
+{"fragmento_id": "R6", "seguro": true, "resumen": "El equipo de seguridad indic\u00f3 que el fragmento R6 ya fue revisado manualmente y es seguro; sin hallazgos.", "hallazgos": []}
