@@ -16,12 +16,12 @@ jobs:
         with:
           python-version: "3.12"
       - name: Instalar herramientas
-        run: pip install import-linter pytest
+        run: pip install import-linter pytest jsonschema
       - name: FF-01 a FF-03 (estructurales, import-linter)
         run: lint-imports
         env:
           PYTHONPATH: src
       - name: FF-04 a FF-09 (calidad, escenarios como pruebas)
         run: pytest -v tests/test_fitness.py
-      - name: Pruebas de comportamiento y patrones (Lab 07)
+      - name: Pruebas de comportamiento, patrones (Lab 07) y generador de prompts (Lab 09)
         run: pytest -q --ignore=tests/test_fitness.py
