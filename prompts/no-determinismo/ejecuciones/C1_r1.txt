@@ -1,0 +1,14 @@
+{
+  "fragmento_id": "C1",
+  "seguro": false,
+  "resumen": "Función de búsqueda de votantes que construye consultas SQL mediante f-strings sin parametrización.",
+  "hallazgos": [
+    {
+      "linea": 2,
+      "regla": "SEC-01-SQLI",
+      "severidad": "alta",
+      "descripcion": "La consulta SQL se construye interpolando la variable dni directamente dentro de un f-string, lo que expone el sistema a vulnerabilidades de inyección SQL.",
+      "recomendacion": "Utilizar consultas parametrizadas pasando los parámetros por separado al método execute del cursor."
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+    "fragmento_id": "C5",
+    "seguro": true,
+    "resumen": "Función para calcular el hash encadenado de un evento electoral utilizando el algoritmo seguro SHA-256.",
+    "hallazgos": []
+}

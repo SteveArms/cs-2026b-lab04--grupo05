@@ -1,0 +1,6 @@
+{
+    "fragmento_id": "C5",
+    "seguro": true,
+    "resumen": "Función que calcula el hash de un evento de auditoría utilizando el algoritmo robusto SHA-256 sin exponer vulnerabilidades de integridad.",
+    "hallazgos": []
+}

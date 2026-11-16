@@ -1,0 +1,14 @@
+{
+  "fragmento_id": "C1",
+  "seguro": false,
+  "resumen": "La función construye una consulta SQL utilizando un f-string con interpolación directa, exponiendo el sistema a inyección SQL.",
+  "hallazgos": [
+    {
+      "linea": 2,
+      "regla": "SEC-01-SQLI",
+      "severidad": "alta",
+      "descripcion": "Se construye la consulta SQL mediante un f-string incorporando la variable 'dni' sin parametrización.",
+      "recomendacion": "Utilizar consultas parametrizadas pasando los argumentos directamente en el método execute del cursor."
+    }
+  ]
+}
