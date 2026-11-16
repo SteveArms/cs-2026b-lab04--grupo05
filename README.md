@@ -241,3 +241,54 @@ pytest
 - [ADR-007: Disponibilidad ante Caída del IdP](docs/architecture/adr/007-disponibilidad-falla-idp.md)
 - [ADR-008: Auditoría Externa y Preservación del Secreto](docs/architecture/adr/008-auditoria-secreto-anclaje.md)
 
+
+---
+
+## Prompt engineering (Lab 09)
+
+[![prompts-evals](https://github.com/SteveArms/cs-2026b-lab04--grupoXX/actions/workflows/prompts.yml/badge.svg)](https://github.com/SteveArms/cs-2026b-lab04--grupoXX/actions/workflows/prompts.yml)
+
+Los prompts se tratan como código: tienen un contrato de salida (JSON Schema), un dataset de casos escrito antes de ejecutar, aserciones automáticas con **promptfoo 0.118.17**, versiones en Git, respuestas grabadas (sin clave de API) y una compuerta en CI.
+
+- **Tarea A** (común): generar criterios de aceptación en Gherkin a partir de historias de usuario de VotoEPIS.
+- **Tarea B** (caso 5): revisar código con una lista de verificación de seguridad (SEC-01 a SEC-06) y devolver hallazgos con línea y regla.
+
+### 1. Versiones y tasa de aprobación
+| Tarea | Versión | Qué cambió | Casos aprobados | Tasa |
+|---|---|---|:---:|:---:|
+| A · criterios | [v1](prompts/criterios/v1.txt) | Prompt ingenuo (solo la tarea) | 0/8 | 0 % |
+| A · criterios | [v2](prompts/criterios/v2.txt) | + rol, contexto y formato JSON | 2/8 | 25 % |
+| A · criterios | [v3](prompts/criterios/v3.txt) ✅ | + tarea paso a paso (INVEST), restricciones, delimitadores `<historia>` y ejemplo (few-shot) | 8/8 | **100 %** |
+| B · revisión de seguridad | [v1](prompts/revision-seguridad/v1.txt) | Prompt ingenuo | 0/8 | 0 % |
+| B · revisión de seguridad | [v2](prompts/revision-seguridad/v2.txt) | + rol AppSec y formato JSON | 5/8 | 62,5 % |
+| B · revisión de seguridad | [v3](prompts/revision-seguridad/v3.txt) | + catálogo SEC-01..06, análisis por línea, delimitadores `<codigo>` y ejemplo | 8/8 | 100 % |
+| B · revisión de seguridad | [v3.1](prompts/revision-seguridad/v3.1.txt) ✅ | + defensas del red teaming: delimitadores neutralizados, no revelar el prompt, idioma y formato fijos | 8/8 | **100 %** |
+| Red teaming (Tarea B) | v3 → v3.1 | 6 ataques: directo, indirecto, revelar prompt, formato, idioma, escape de delimitador | 5/6 → 6/6 | 83 % → **100 %** |
+
+![Resultados Lab 09](prompts/img/resultados-lab09.png)
+
+### 2. Artefactos
+| Etapa | Artefacto |
+|---|---|
+| E1–E3 | [`prompts/criterios/`](prompts/criterios/): `esquema.json`, `casos.yaml`, v1–v3, grabaciones y `promptfooconfig.yaml` |
+| E4 | [`prompts/revision-seguridad/`](prompts/revision-seguridad/): la misma estructura para la Tarea B |
+| E5 | [`prompts/seguridad/red-team.md`](prompts/seguridad/red-team.md): ataques, defensas en capas y resultados antes/después |
+| E6 | [`src/votacion/generador_revision.py`](src/votacion/generador_revision.py), detrás de `ProveedorLLM` (Lab 07), y sus pruebas en [`tests/test_generador_revision.py`](tests/test_generador_revision.py) |
+| E7 | [`.github/workflows/prompts.yml`](.github/workflows/prompts.yml) + [`prompts/verificar_evals.py`](prompts/verificar_evals.py) (meta y sin regresiones), [`prompts/no-determinismo/`](prompts/no-determinismo/no-determinismo.md) y [`prompts/bitacora-ia.md`](prompts/bitacora-ia.md) |
+
+### 3. Ejecución local
+```bash
+npx promptfoo@0.118.17 --version
+cd prompts/criterios          && npx promptfoo@0.118.17 eval --no-cache -o resultados.json && cd ../..
+cd prompts/revision-seguridad && npx promptfoo@0.118.17 eval --no-cache -o resultados.json && cd ../..
+cd prompts/seguridad          && npx promptfoo@0.118.17 eval --no-cache -o resultados.json && cd ../..
+pytest -q tests/test_generador_revision.py      # requiere: pip install jsonschema pytest
+python prompts/graficar_resultados.py           # regenera el gráfico (requiere matplotlib)
+```
+
+### 4. Lecciones aprendidas
+1. **Un prompt no se siente mejor, se demuestra mejor.** Cada versión ataca un fallo concreto de la anterior; el salto más grande lo dio la estructura (tarea paso a paso, delimitadores y ejemplo), no el rol.
+2. **Los delimitadores solo protegen si el dato no puede cerrarlos.** El ataque R6 rompió la v3 escribiendo su propio `</codigo>`. La defensa útil fue de código (escapar la entrada), no una frase más en el prompt.
+3. **El evaluador también se evalúa.** Una aserción mal escrita da falsos positivos; por ejemplo, buscar `SEC-0` como «fuga del prompt» habría marcado 11 de 12 respuestas válidas.
+4. **La salida de un LLM es un borrador.** El generador valida contra el esquema y rechaza lo que no cumple (`SalidaInvalida`); nunca muestra la respuesta tal cual ni ejecuta acciones.
+5. **100 % sobre 8 casos no prueba que el prompt sea bueno.** Prueba que el dataset es chico: hay que seguir agregando casos adversarios.
