@@ -1,0 +1,49 @@
+@startuml arquitectura-agente
+skinparam dpi 200
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #EEF2F8
+skinparam classBorderColor #1A3A5C
+hide empty members
+title Mini framework de agentes del laboratorio (Python, ~300 líneas)
+class Agente {
+  - historial: list  <<memoria>>
+  - eventos: list    <<traza>>
+  + ejecutar(): str
+}
+interface Modelo <<Strategy>> {
+  + decidir(historial): dict
+}
+class ModeloGrabado
+class ModeloAnthropic
+class Herramientas {
+  + listar_archivos() / leer_archivo()
+  + buscar() / ver_cambios()
+  + editar_archivo() / ejecutar_pruebas()
+  + ejecutar_comando()
+}
+class Politica {
+  + herramientas_permitidas
+  + comandos_permitidos
+  + rutas_protegidas / max_pasos
+  + evaluar(accion, args, paso): Decision
+}
+class "contrato" as Contrato <<módulo>> {
+  + validar_decision(d, herramientas): (bool, str)
+}
+class Orquestador <<script>> {
+  MAX_RONDAS = 2  <<actor-crítico>>
+}
+Agente --> Modelo : pide la siguiente acción
+Agente --> Contrato : valida la decisión
+Agente --> Politica : consulta antes de actuar
+Agente --> Herramientas : ejecuta si está permitido
+Modelo <|.. ModeloGrabado
+Modelo <|.. ModeloAnthropic
+Orquestador --> "3" Agente : planificador, ejecutor, revisor
+note right of Politica
+  Cada agente recibe su propia
+  política (mínimo privilegio).
+end note
+@enduml
