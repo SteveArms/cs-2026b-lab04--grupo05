@@ -1,0 +1,72 @@
+@startuml estados-agente-votoepis
+skinparam dpi 200
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam state {
+  BackgroundColor #EEF2F8
+  BorderColor #1A3A5C
+  ArrowColor #444444
+}
+
+title Máquina de Estados Finitos del Agente VotoEPIS (nucleo.py y politica.py)
+
+[*] --> Decidiendo : objetivo recibido (INICIO)
+
+state Decidiendo {
+  Decidiendo : El modelo propone
+  Decidiendo : pensamiento + acción/final
+}
+
+Decidiendo --> ValidandoContrato : decisión JSON emitida
+
+state ValidandoContrato {
+  ValidandoContrato : Valida formato estricto:
+  ValidandoContrato : campos requeridos, tipos y catálogo
+}
+
+ValidandoContrato --> Decidiendo : [inválida] / ERROR DE CONTRATO (autocorrección)
+ValidandoContrato --> Finalizado : [contiene "final"]
+ValidandoContrato --> EvaluandoPolitica : [contiene "accion" válida]
+
+state EvaluandoPolitica {
+  EvaluandoPolitica : Valida guardrails:
+  EvaluandoPolitica : paso <= max_pasos, rutas no protegidas,
+  EvaluandoPolitica : y comandos permitidos
+}
+
+EvaluandoPolitica --> LimiteAlcanzado : [paso > max_pasos]
+EvaluandoPolitica --> Decidiendo : [denegada / ruta protegida / comando prohibido] / BLOQUEADO
+EvaluandoPolitica --> EsperandoAprobacion : [accion == 'editar_archivo' y aprobar_edicion != None]
+EvaluandoPolitica --> Ejecutando : [permitida directamente]
+
+state EsperandoAprobacion {
+  EsperandoAprobacion : Human-in-the-loop:
+  EsperandoAprobacion : Revisor humano inspecciona el cambio
+}
+
+EsperandoAprobacion --> Decidiendo : [rechazada por humano] / BLOQUEADO
+EsperandoAprobacion --> Ejecutando : [aprobada por humano]
+
+state Ejecutando {
+  Ejecutando : Ejecuta herramienta real en sandbox:
+  Ejecutando : (leer, buscar, editar, ejecutar_pruebas, mapa_repo)
+}
+
+Ejecutando --> Observando : salida de herramienta o excepción capturada
+
+state Observando {
+  Observando : Se agrega observación al historial
+  Observando : (memoria de corto plazo)
+}
+
+Observando --> Decidiendo : nuevo turno de razonamiento
+
+Finalizado --> [*] : entrega respuesta final
+LimiteAlcanzado --> [*] : presupuesto de pasos agotado
+
+state Finalizado #EAF4EC
+state LimiteAlcanzado #F4CCC3
+state EsperandoAprobacion #FFF2CC
+
+@enduml
