@@ -1,0 +1,1 @@
+- Hipótesis: cerrar_mesa en ServicioVotacion pasa eleccion.fin en vez de momento a self.cerrar(), engañando la guarda de fin en EstadoEleccion.
