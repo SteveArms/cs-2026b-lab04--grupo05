@@ -118,18 +118,11 @@ class ServicioVotacion:
     def computar_votos_validos(self, eleccion) -> dict[str, int]:
         """Calcula el total de votos válidos por candidato/lista excluyendo blancos y nulos."""
         totales = self.conteo(eleccion)
-        # BUG SEMBRADO (ISSUE-02): suma erróneamente 'Voto en Blanco' y 'Voto Nulo'
-        # al primer candidato registrado en la elección.
-        candidatos = [o.etiqueta for o in eleccion.opciones
-                      if o.etiqueta.lower() not in ("voto en blanco", "voto nulo", "blanco", "nulo")]
-        if not candidatos:
-            return totales
-
-        primer_candidato = candidatos[0]
-        votos_blancos_nulos = totales.get("Voto en Blanco", 0) + totales.get("Voto Nulo", 0)
-        resultado = {c: totales.get(c, 0) for c in candidatos}
-        resultado[primer_candidato] += votos_blancos_nulos  # BUG: asigna blancos/nulos al primer candidato
-        return resultado
+        # ISSUE-02 solucionado: los votos en blanco y nulos se excluyen del cómputo
+        # y no se transfieren a ningún candidato.
+        no_validos = ("voto en blanco", "voto nulo", "blanco", "nulo")
+        return {o.etiqueta: totales.get(o.etiqueta, 0) for o in eleccion.opciones
+                if o.etiqueta.lower() not in no_validos}
 
     def cerrar_mesa(self, eleccion, ahora: datetime | None = None) -> None:
         """Cierre operativo de mesa por parte del comité electoral."""
