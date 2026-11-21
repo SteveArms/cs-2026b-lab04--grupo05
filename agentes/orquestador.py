@@ -5,6 +5,7 @@ Cada agente tiene su propia política (mínimo privilegio) y todos trabajan en l
 Uso (desde agentes/):
   python orquestador.py                  # reproduce las trayectorias grabadas
   python orquestador.py --interactivo    # decisiones pegadas desde su asistente de IA
+  python orquestador.py --aprobar        # E6: un integrante aprueba (s/n) cada edición del ejecutor
 """
 import json
 import pathlib
@@ -35,7 +36,7 @@ def sufijo(ronda: int) -> str:
     return "" if ronda == 1 else f"_r{ronda}"
 
 
-def main(interactivo: bool = False) -> list:
+def main(interactivo: bool = False, aprobar: bool = False) -> list:
     TRAY.mkdir(parents=True, exist_ok=True)
     TRAZ.mkdir(parents=True, exist_ok=True)
     h = Herramientas(preparar())
@@ -51,6 +52,9 @@ def main(interactivo: bool = False) -> list:
 
     for ronda in range(1, MAX_RONDAS + 1):
         politica_ejecutor = Politica(max_pasos=12)
+        if aprobar:                                                # E6: humano en el circuito
+            from humano import aprobar_por_consola
+            politica_ejecutor.aprobar_edicion = aprobar_por_consola
         ejecutor = Agente("ejecutor", modelo(f"ejecutor{sufijo(ronda)}", interactivo), h, politica_ejecutor,
                           objetivo(f"Eres el EJECUTOR. Resuelve issues/ISSUE-02.md siguiendo este plan:\n{plan}\n"
                                    f"{retro}Corrige src/, nunca las pruebas.", h.catalogo()),
@@ -78,4 +82,4 @@ def main(interactivo: bool = False) -> list:
 
 
 if __name__ == "__main__":
-    main("--interactivo" in sys.argv)
+    main("--interactivo" in sys.argv, "--aprobar" in sys.argv)

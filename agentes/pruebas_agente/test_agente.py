@@ -56,3 +56,47 @@ def test_anotar_y_leer_notas(tmp_path):
     contenido = h.leer_notas()
     assert "- Hipotesis 1: bug en cierre de mesa" in contenido
     assert "- Hipotesis 2: revisar fecha fin" in contenido
+
+
+# --- E6: humano en el circuito ---
+from agente.nucleo import Agente
+from humano import aprobar_por_consola, pedir_respuesta
+
+
+def _respuestas(*valores):
+    it = iter(valores)
+    return lambda _prompt: next(it)
+
+
+def test_humano_solo_acepta_s_o_n():
+    avisos = []
+    assert pedir_respuesta(_respuestas("si", "", "S"), avisos.append) == "s"
+    assert len(avisos) == 2                                   # "si" y "" se rechazan y se vuelve a preguntar
+
+
+def test_humano_rechaza_y_se_registra(tmp_path):
+    reg = tmp_path / "aprobaciones.jsonl"
+    args = {"ruta": "src/a.py", "antes": "x", "despues": "y"}
+    assert aprobar_por_consola(args, _respuestas("n"), lambda *_: None, reg) is False
+    assert '"RECHAZADA"' in reg.read_text(encoding="utf-8")
+
+
+class _Fijo:
+    def __init__(self, decisiones):
+        self.d = iter(decisiones)
+
+    def decidir(self, historial):
+        return next(self.d)
+
+
+def test_politica_con_humano_bloquea_la_edicion_rechazada(tmp_path):
+    (tmp_path / "a.py").write_text("x = 1\n", encoding="utf-8")
+    p = Politica()
+    p.aprobar_edicion = lambda args: False                    # el integrante responde "n"
+    ag = Agente("ejecutor", _Fijo([
+        {"pensamiento": "edito", "accion": "editar_archivo", "args": {"ruta": "a.py", "antes": "x = 1", "despues": "x = 2"}},
+        {"pensamiento": "fin", "final": "no pude editar"}]),
+        Herramientas(tmp_path), p, "objetivo", str(tmp_path / "t.jsonl"))
+    ag.ejecutar()
+    assert (tmp_path / "a.py").read_text(encoding="utf-8") == "x = 1\n"     # el archivo no cambió
+    assert ag.eventos[1]["estado"] == "BLOQUEADO" and "humano" in ag.eventos[1]["observacion"]
