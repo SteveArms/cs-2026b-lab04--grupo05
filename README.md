@@ -302,7 +302,7 @@ Sistema multiagente que diagnostica y corrige issues de VotoEPIS: **planificador
 ### 1. Máquina de estados del agente
 ![Máquina de estados](agentes/diseno/estados.png)
 
-El contrato (`agentes/agente/contrato.py`) valida cada decisión **antes** de actuar. La política (`agentes/agente/politica.py`) decide si la acción se permite. La guarda `[paso ≤ max_pasos]` evita que el agente se ejecute indefinidamente.
+El contrato (`agentes/agente/contrato.py`) valida cada decisión **antes** de actuar. La política (`agentes/agente/politica.py`) decide si la acción se permite. La guarda `[paso ≤ max_pasos]` evita que el agente se ejecute indefinidamente trabajado.
 
 ### 2. Trayectoria: ISSUE-02 con bucle actor-crítico (2 rondas)
 ![Trayectoria ISSUE-02](agentes/trazas/issue2_multi.png)
