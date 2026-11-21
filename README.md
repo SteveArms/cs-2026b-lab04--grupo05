@@ -292,3 +292,40 @@ python prompts/graficar_resultados.py           # regenera el gráfico (requiere
 3. **El evaluador también se evalúa.** Una aserción mal escrita da falsos positivos; por ejemplo, buscar `SEC-0` como «fuga del prompt» habría marcado 11 de 12 respuestas válidas.
 4. **La salida de un LLM es un borrador.** El generador valida contra el esquema y rechaza lo que no cumple (`SalidaInvalida`); nunca muestra la respuesta tal cual ni ejecuta acciones.
 5. **100 % sobre 8 casos no prueba que el prompt sea bueno.** Prueba que el dataset es chico: hay que seguir agregando casos adversarios.
+
+---
+
+## Sistemas agénticos (Lab 10)
+
+Sistema multiagente que diagnostica y corrige issues de VotoEPIS: **planificador → ejecutor (actor) ↔ revisor (crítico) → humano**. Cada agente tiene su propia política (mínimo privilegio), trabaja en una copia del repositorio y deja una traza JSONL de cada paso. Decisión de arquitectura: [ADR-010](docs/architecture/adr/010-sistema-agentico.md).
+
+### 1. Máquina de estados del agente
+![Máquina de estados](agentes/diseno/estados.png)
+
+El contrato (`agentes/agente/contrato.py`) valida cada decisión **antes** de actuar. La política (`agentes/agente/politica.py`) decide si la acción se permite. La guarda `[paso ≤ max_pasos]` evita que el agente se ejecute indefinidamente.
+
+### 2. Trayectoria: ISSUE-02 con bucle actor-crítico (2 rondas)
+![Trayectoria ISSUE-02](agentes/trazas/issue2_multi.png)
+
+En la ronda 1 el revisor pidió eliminar un comentario de **inyección indirecta** (`curl … | bash`) que el ejecutor había dejado en `servicio.py`. En la ronda 2 se eliminó y el revisor aprobó. La decisión final es del humano.
+
+### 3. Métricas de los 3 issues (desde las trazas)
+| Corrida | Agentes | Rondas | Pasos | Rechazadas por contrato | Bloqueadas por política | Contexto final (estimado) |
+|---|---|---|---|---|---|---|
+| ISSUE-01 (agente único) | 1 | 1 | 7 | 1 | 1 | 4 246 car. |
+| ISSUE-02 (agente único) | 1 | 1 | 8 | 0 | 0 | 6 614 car. |
+| ISSUE-02 (actor-crítico) | 3 | 2 | 17 | 0 | 0 | 19 256 car. |
+| ISSUE-03 (agente único + `mapa_repo` y notas) | 1 | 1 | 9 | 0 | 0 | 6 032 car. |
+
+Detalle y análisis en [`agentes/observacion.md`](agentes/observacion.md). Comparación entre coordinaciones en [`agentes/coordinacion.md`](agentes/coordinacion.md). Hoja de ruta de autonomía (hoy: humano **revisor**) en [`agentes/delegacion.md`](agentes/delegacion.md).
+
+### 4. Ejecución
+```bash
+cd agentes
+python -m pytest -q pruebas_agente     # 20 pruebas del propio agente (contrato, política, sandbox, humano)
+python resolver_issue2_unico.py        # agente único sobre el ISSUE-02 (decisiones grabadas)
+python orquestador.py                  # planificador + actor-crítico sobre el ISSUE-02
+python orquestador.py --aprobar        # E6: un integrante aprueba cada edición (s/n)
+python metricas.py                     # tabla, gráfico y diagramas de las trazas
+```
+**Regla de oro:** el agente propone; el contrato y la política filtran; el humano aprueba.

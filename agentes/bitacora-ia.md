@@ -17,5 +17,3 @@
 | 10 | E7 | <fecha> | Claude | Comparar las trazas de E2/E4 con las de E5 | Los agentes del ISSUE-01 y 03 se ejecutaron sobre el repositorio (`REPO_ROOT`), no sobre una copia, y solo ejecutaron la prueba del issue, no la suite | Lectura de las trazas y de `resolver_issue1.py`/`resolver_issue3.py` | Corregido desde E5: `sandbox.py` y la suite completa en el ejecutor y el revisor. Se registra en el ADR-010 |
 | 11 | E7 | <fecha> | Claude | Primera versión de `metricas.py` (tabla de E7) | El formateo de miles reemplazaba las comas de **toda** la fila y dañaba los nombres («agente único  E2»), y el gráfico cortaba la etiqueta de la barra más alta | Revisión manual de la salida y del PNG | Corregido: se formatea solo el número y se fija el límite del eje |
 
-## Anexo: prompts y contexto usados
-<pegar aquí el contexto exacto que se copió al asistente en cada etapa>
