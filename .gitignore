@@ -9,3 +9,6 @@ node_modules/
 package-lock.json
 reportes/
 prompts/no-determinismo/renderizados/
+
+# Lab 10: copia de trabajo de los agentes (se regenera en cada ejecución)
+agentes/trabajo/
