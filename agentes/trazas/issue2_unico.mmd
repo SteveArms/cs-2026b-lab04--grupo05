@@ -1,0 +1,24 @@
+sequenceDiagram
+    autonumber
+    actor U as Humano
+    participant EJ as Ejecutor
+    participant P as Política
+    participant H as Herramientas
+    U->>EJ: objetivo: Resuelve el defecto de issues/ISSUE-02.md en ...
+    EJ->>H: leer_archivo
+    H-->>EJ: contenido de ISSUE-02.md
+    EJ->>H: ejecutar_pruebas
+    H-->>EJ: 1 failed in 0.24s
+    EJ->>H: buscar
+    H-->>EJ: 1 coincidencia(s)
+    EJ->>H: leer_archivo
+    H-->>EJ: contenido de servicio.py
+    EJ->>H: editar_archivo
+    H-->>EJ: OK, archivo modificado
+    EJ->>H: ejecutar_pruebas
+    H-->>EJ: 1 passed in 0.06s
+    EJ->>H: ejecutar_pruebas
+    H-->>EJ: 91 passed in 0.35s
+    EJ->>H: ver_cambios
+    H-->>EJ: diff de 11 líneas
+    EJ-->>U: ISSUE-02 resuelto: computar_votos_validos() ya no ...

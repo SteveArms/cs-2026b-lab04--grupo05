@@ -1,0 +1,67 @@
+{
+ "ISSUE-01 (agente único, E2)": {
+  "agentes": 1,
+  "rondas": 1,
+  "pasos": 7,
+  "herramientas": {
+   "leer_archivo": 2,
+   "ejecutar_pruebas": 2,
+   "editar_archivo": 1,
+   "ver_cambios": 1
+  },
+  "contrato_rechazado": 1,
+  "bloqueadas_politica": 1,
+  "finalizado": true,
+  "contexto_estimado": 4246
+ },
+ "ISSUE-02 (agente único, E5)": {
+  "agentes": 1,
+  "rondas": 1,
+  "pasos": 8,
+  "herramientas": {
+   "leer_archivo": 2,
+   "ejecutar_pruebas": 3,
+   "buscar": 1,
+   "editar_archivo": 1,
+   "ver_cambios": 1
+  },
+  "contrato_rechazado": 0,
+  "bloqueadas_politica": 0,
+  "finalizado": true,
+  "contexto_estimado": 6614
+ },
+ "ISSUE-02 (actor-crítico, E5)": {
+  "agentes": 3,
+  "rondas": 2,
+  "pasos": 17,
+  "herramientas": {
+   "leer_archivo": 2,
+   "buscar": 3,
+   "ejecutar_pruebas": 6,
+   "editar_archivo": 2,
+   "ver_cambios": 4
+  },
+  "contrato_rechazado": 0,
+  "bloqueadas_politica": 0,
+  "finalizado": true,
+  "contexto_estimado": 19256
+ },
+ "ISSUE-03 (agente único + mapa_repo y notas, E4)": {
+  "agentes": 1,
+  "rondas": 1,
+  "pasos": 9,
+  "herramientas": {
+   "leer_archivo": 2,
+   "ejecutar_pruebas": 2,
+   "mapa_repo": 1,
+   "anotar": 1,
+   "leer_notas": 1,
+   "editar_archivo": 1,
+   "ver_cambios": 1
+  },
+  "contrato_rechazado": 0,
+  "bloqueadas_politica": 0,
+  "finalizado": true,
+  "contexto_estimado": 6032
+ }
+}

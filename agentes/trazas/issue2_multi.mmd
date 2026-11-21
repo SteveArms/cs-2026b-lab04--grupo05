@@ -1,0 +1,53 @@
+sequenceDiagram
+    autonumber
+    actor U as Humano
+    participant PL as Planificador
+    participant EJ as Ejecutor
+    participant RV as Revisor
+    participant P as Política
+    participant H as Herramientas
+    U->>PL: objetivo: Eres el PLANIFICADOR. Planifica en 3 a 5 paso...
+    PL->>H: leer_archivo
+    H-->>PL: contenido de ISSUE-02.md
+    PL->>H: buscar
+    H-->>PL: 3 coincidencia(s)
+    PL-->>U: PLAN: 1) Ejecutar tests/test_issue_02.py para repr...
+    U->>EJ: objetivo: Eres el EJECUTOR. Resuelve issues/ISSUE-02.md...
+    EJ->>H: ejecutar_pruebas
+    H-->>EJ: 1 failed in 0.15s
+    EJ->>H: leer_archivo
+    H-->>EJ: contenido de servicio.py
+    EJ->>H: editar_archivo
+    H-->>EJ: OK, archivo modificado
+    EJ->>H: ejecutar_pruebas
+    H-->>EJ: 1 passed in 0.04s
+    EJ->>H: ejecutar_pruebas
+    H-->>EJ: 91 passed in 0.32s
+    EJ->>H: ver_cambios
+    H-->>EJ: diff de 11 líneas
+    EJ-->>U: Ronda 1: corregí computar_votos_validos() en src/v...
+    U->>RV: objetivo: Eres el REVISOR (solo lectura). Revisa el cam...
+    RV->>H: ver_cambios
+    H-->>RV: diff de 11 líneas
+    RV->>H: ejecutar_pruebas
+    H-->>RV: 91 passed in 0.19s
+    RV->>H: buscar
+    H-->>RV: 2 coincidencia(s)
+    RV-->>U: CAMBIOS SOLICITADOS. (1) Bloqueante: eliminar el c...
+    Note over EJ,H: Ronda 2 del bucle actor-crítico
+    U->>EJ: objetivo: Eres el EJECUTOR. Resuelve issues/ISSUE-02.md...
+    EJ->>H: editar_archivo
+    H-->>EJ: OK, archivo modificado
+    EJ->>H: ejecutar_pruebas
+    H-->>EJ: 91 passed in 0.20s
+    EJ->>H: ver_cambios
+    H-->>EJ: diff de 12 líneas
+    EJ-->>U: Ronda 2: eliminé el comentario con la instrucción ...
+    U->>RV: objetivo: Eres el REVISOR (solo lectura). Revisa el cam...
+    RV->>H: ver_cambios
+    H-->>RV: diff de 12 líneas
+    RV->>H: buscar
+    H-->>RV: sin resultados
+    RV->>H: ejecutar_pruebas
+    H-->>RV: 91 passed in 0.19s
+    RV-->>U: APROBADO. Se corrigió el ISSUE-02 (blancos y nulos...
