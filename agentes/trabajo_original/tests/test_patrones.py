@@ -1,0 +1,304 @@
+"""Pruebas que DEMUESTRAN cada patrón aplicado (solo sobre la versión refactorizada)."""
+import inspect
+
+import pytest
+
+import votacion.servicio as srv
+from votacion.autenticacion import (AutenticadorVotante, FabricaAutenticadores, OidcAdapter,
+                                    OtpAdapter, ResultadoAutenticacion)
+from votacion.externos import OtpComiteSDK, ProveedorIdentidadSDK
+
+ANA = "ana@unsa.edu.pe"
+
+
+# ------------------------------------------------------------------ E2: Adapter
+def test_adapter_oidc_traduce_el_diccionario_del_sdk():
+    sdk = ProveedorIdentidadSDK(tokens={"t": ANA})
+    assert OidcAdapter(sdk).autenticar(ANA, "t") == ResultadoAutenticacion(True, ANA)
+    assert OidcAdapter(sdk).autenticar(ANA, "malo") == ResultadoAutenticacion(False, None)
+
+
+def test_adapter_otp_traduce_la_tupla_del_sdk():
+    sdk = OtpComiteSDK(codigos={ANA: "111"})
+    assert OtpAdapter(sdk).autenticar(ANA, "111") == ResultadoAutenticacion(True, ANA)
+    assert OtpAdapter(sdk).autenticar(ANA, "999") == ResultadoAutenticacion(False, None)
+
+
+def test_los_adaptadores_no_contienen_reglas_de_negocio():
+    # El adaptador solo traduce: no conoce elecciones, estados ni habilitación.
+    for clase in (OidcAdapter, OtpAdapter):
+        fuente = inspect.getsource(clase)
+        assert "Eleccion" not in fuente and "habilitado" not in fuente
+
+
+# ------------------------------------------------------------------ E2: Factory
+def test_factory_rechaza_un_medio_no_registrado():
+    with pytest.raises(ValueError):
+        FabricaAutenticadores().crear("HUELLA")
+
+
+# ------------------------------------------------------------------ E2: Strategy + Open/Closed
+def test_open_closed_nuevo_medio_sin_modificar_el_servicio():
+    class TokenComite(AutenticadorVotante):          # medio NUEVO: no toca ServicioVotacion
+        def autenticar(self, correo_esperado, credencial):
+            return ResultadoAutenticacion(credencial == "sello-comite", correo_esperado)
+
+    s = srv.ServicioVotacion()
+    s.fabrica.registrar("COMITE", TokenComite)
+    e = srv.Eleccion("Delegados", [srv.Opcion("A"), srv.Opcion("B")])
+    s.abrir(e)
+    s.emitir_voto(srv.Votante(ANA), e, e.opciones[0].id, "COMITE", "sello-comite")
+    assert s.conteo(e)["A"] == 1
+
+
+def test_el_servicio_ya_no_conoce_los_medios_concretos():
+    fuente = inspect.getsource(srv.ServicioVotacion)
+    assert '"OIDC"' not in fuente and '"OTP"' not in fuente
+    assert "validar_token" not in fuente and "verificar(" not in fuente
+
+
+# ------------------------------------------------------------------ E3: State
+import re
+from datetime import datetime, timedelta
+
+import votacion.estados as est
+
+FIN = datetime(2026, 10, 20, 18, 0)
+
+ACCIONES = {
+    "abrir": lambda e: e.abrir(),
+    "cerrar": lambda e: e.cerrar(FIN + timedelta(hours=1)),
+    "escrutar": lambda e: e.escrutar(0, 0),
+    "firmar_acta": lambda e: e.firmar_acta(),
+    "publicar": lambda e: e.publicar(),
+}
+
+
+def eleccion_en(estado):
+    """Lleva una elección real hasta el estado pedido usando solo transiciones válidas."""
+    e = est.Eleccion("Delegados", [est.Opcion("A"), est.Opcion("B")], fin=FIN)
+    pasos = {"CONFIGURADA": [], "ABIERTA": ["abrir"], "CERRADA": ["abrir", "cerrar"],
+             "ESCRUTADA": ["abrir", "cerrar", "escrutar"],
+             "PUBLICADA": ["abrir", "cerrar", "escrutar", "firmar_acta", "publicar"]}
+    for accion in pasos[estado]:
+        ACCIONES[accion](e)
+    assert e.estado == estado
+    return e
+
+
+# transiciones permitidas según estados-eleccion.mmd (Lab 05)
+VALIDAS = {("CONFIGURADA", "abrir"), ("ABIERTA", "cerrar"), ("CERRADA", "escrutar"),
+           ("ESCRUTADA", "firmar_acta"), ("ESCRUTADA", "publicar")}
+ESTADOS = ["CONFIGURADA", "ABIERTA", "CERRADA", "ESCRUTADA", "PUBLICADA"]
+INVALIDAS = [(s, a) for s in ESTADOS for a in ACCIONES if (s, a) not in VALIDAS]
+
+
+@pytest.mark.parametrize("estado,accion", INVALIDAS)
+def test_state_impide_transiciones_invalidas(estado, accion):
+    e = eleccion_en(estado)
+    with pytest.raises(ValueError):
+        ACCIONES[accion](e)
+    assert e.estado == estado          # la elección no cambió
+
+
+@pytest.mark.parametrize("estado,accion,destino", [
+    ("CONFIGURADA", "abrir", "ABIERTA"), ("ABIERTA", "cerrar", "CERRADA"),
+    ("CERRADA", "escrutar", "ESCRUTADA"), ("ESCRUTADA", "firmar_acta", "ESCRUTADA"),
+])
+def test_state_cada_transicion_valida(estado, accion, destino):
+    e = eleccion_en(estado)
+    ACCIONES[accion](e)
+    assert e.estado == destino
+
+
+def test_state_publicar_requiere_acta_firmada():
+    e = eleccion_en("ESCRUTADA")
+    with pytest.raises(ValueError):
+        e.publicar()
+    e.firmar_acta()
+    e.publicar()
+    assert e.estado == "PUBLICADA"
+
+
+def test_state_los_nombres_coinciden_con_el_enum_del_lab_05():
+    from votacion.dominio import EstadoEleccion as EnumLab05
+    assert [c.nombre for c in (est.Configurada, est.Abierta, est.Cerrada, est.Escrutada, est.Publicada)] \
+        == [x.value for x in EnumLab05]
+
+
+def test_state_las_clases_de_estado_no_preguntan_por_el_nombre_de_otro_estado():
+    fuente = inspect.getsource(est)
+    assert not re.search(r"\.estado\s*(==|!=)|nombre\s*(==|!=)", fuente)
+
+
+def test_el_servicio_ya_no_tiene_condicionales_sobre_el_ciclo_de_vida():
+    fuente = inspect.getsource(srv.ServicioVotacion)
+    for nombre in ("CONFIGURADA", "CERRADA", "ESCRUTADA", "PUBLICADA"):
+        assert f'"{nombre}"' not in fuente
+
+
+# ------------------------------------------------------------------ E4: Decorator
+from votacion.autenticacion import ConReintentos, OidcAdapter as _Oidc, ResultadoAutenticacion as _Res
+from votacion.eventos import PublicadorEventos, Suscriptor
+from votacion.externos import CorreoSDK
+
+
+def test_decorator_reintenta_solo_ante_timeouts():
+    sdk = ProveedorIdentidadSDK(tokens={"t": ANA}, fallas=2)
+    deco = ConReintentos(_Oidc(sdk), intentos=3)
+    assert deco.autenticar(ANA, "t") == _Res(True, ANA)
+    assert sdk.llamadas == 3
+
+
+def test_decorator_no_reintenta_un_rechazo():
+    sdk = ProveedorIdentidadSDK(tokens={"t": ANA})
+    deco = ConReintentos(_Oidc(sdk), intentos=3)
+    assert deco.autenticar(ANA, "malo").autenticado is False
+    assert sdk.llamadas == 1
+
+
+def test_decorator_se_rinde_tras_agotar_los_intentos():
+    sdk = ProveedorIdentidadSDK(tokens={"t": ANA}, fallas=10)
+    assert ConReintentos(_Oidc(sdk), intentos=3).autenticar(ANA, "t").autenticado is False
+    assert sdk.llamadas == 3
+
+
+def test_la_fabrica_entrega_las_estrategias_ya_decoradas():
+    fabrica = FabricaAutenticadores()
+    fabrica.registrar("OIDC", lambda: _Oidc(ProveedorIdentidadSDK()))
+    assert isinstance(fabrica.crear("OIDC"), ConReintentos)
+
+
+def test_el_servicio_ya_no_tiene_bucles_de_reintento():
+    fuente = inspect.getsource(srv.ServicioVotacion)
+    assert "TimeoutError" not in fuente and "range(3)" not in fuente
+
+
+# ------------------------------------------------------------------ E4: Observer
+class _Espia(Suscriptor):
+    def __init__(self):
+        self.recibidos = []
+
+    def actualizar(self, evento, datos):
+        self.recibidos.append((evento, datos))
+
+
+def _servicio_con_voto_listo():
+    s = srv.ServicioVotacion(idp=ProveedorIdentidadSDK(tokens={"t": ANA}))
+    e = srv.Eleccion("Delegados", [srv.Opcion("A"), srv.Opcion("B")], fin=FIN)
+    s.abrir(e)
+    return s, e
+
+
+def test_observer_nuevo_suscriptor_sin_tocar_el_servicio():
+    s, e = _servicio_con_voto_listo()
+    espia = _Espia()
+    s.publicador.suscribir("voto_emitido", espia)      # interesado NUEVO: el servicio no cambia
+    s.emitir_voto(srv.Votante(ANA), e, e.opciones[0].id, "OIDC", "t")
+    assert [ev for ev, _ in espia.recibidos] == ["voto_emitido"]
+
+
+def test_observer_publicador_solo_notifica_a_los_suscritos_al_evento():
+    pub = PublicadorEventos()
+    uno, dos = _Espia(), _Espia()
+    pub.suscribir("a", uno)
+    pub.suscribir("b", dos)
+    pub.publicar("a", {"x": 1})
+    assert len(uno.recibidos) == 1 and dos.recibidos == []
+
+
+def test_observer_los_eventos_no_filtran_la_opcion_ni_el_correo_a_la_auditoria():
+    s, e = _servicio_con_voto_listo()
+    s.emitir_voto(srv.Votante(ANA), e, e.opciones[1].id, "OIDC", "t")
+    assert s.eventos == [f"VOTO_EMITIDO:{e.id}"]
+    assert ANA not in " ".join(s.eventos) and str(e.opciones[1].id) not in " ".join(s.eventos)
+
+
+def test_observer_el_contador_de_participacion_cuenta_sin_datos_personales():
+    s, e = _servicio_con_voto_listo()
+    s.emitir_voto(srv.Votante(ANA), e, e.opciones[0].id, "OIDC", "t")
+    assert s.contador.por_eleccion == {e.id: 1}
+
+
+def test_observer_el_comprobante_se_envia_por_suscripcion():
+    correo = CorreoSDK()
+    s = srv.ServicioVotacion(idp=ProveedorIdentidadSDK(tokens={"t": ANA}), correo=correo)
+    e = srv.Eleccion("Delegados", [srv.Opcion("A"), srv.Opcion("B")], fin=FIN)
+    s.abrir(e)
+    s.emitir_voto(srv.Votante(ANA), e, e.opciones[0].id, "OIDC", "t", enviar_correo=True)
+    assert len(correo.bandeja) == 1 and correo.bandeja[0]["destino"] == ANA
+
+
+def test_decorator_no_oculta_errores_que_no_son_timeouts():
+    class _Roto(AutenticadorVotante):
+        def autenticar(self, correo_esperado, credencial):
+            raise RuntimeError("fallo inesperado")
+
+    with pytest.raises(RuntimeError):
+        ConReintentos(_Roto(), intentos=3).autenticar(ANA, "t")
+
+# =========================================================================
+# PRUEBAS DEL COMPONENTE DE IA (E5: Strategy + Adapter + Decorator + Chain)
+# =========================================================================
+from votacion.ia import (
+    AsistenteReglamento,
+    ConCacheLLM,
+    LongitudMaxima,
+    ProveedorSimulado,
+    SinAfirmacionesSesgadas,
+    SinResultadosElectorales,
+)
+
+
+def test_ia_proveedor_intercambiable_sin_costo_ni_red():
+    prompt = "Consulta sobre el reglamento de VotoEPIS: ¿Dónde voto?"
+    proveedor = ProveedorSimulado({prompt: "El voto es virtual a través de la plataforma web."})
+    asistente = AsistenteReglamento(proveedor)
+    assert asistente.consultar("¿Dónde voto?") == "El voto es virtual a través de la plataforma web."
+    assert proveedor.llamadas == 1
+
+
+def test_ia_decorator_cache_evita_consultas_repetidas():
+    prompt = "Consulta sobre el reglamento de VotoEPIS: ¿Qué necesito para votar?"
+    proveedor = ProveedorSimulado({prompt: "Tu correo institucional activo y estar habilitado en el padrón."})
+    con_cache = ConCacheLLM(proveedor)
+    asistente = AsistenteReglamento(con_cache)
+
+    resp1 = asistente.consultar("¿Qué necesito para votar?")
+    resp2 = asistente.consultar("¿Qué necesito para votar?")
+
+    assert resp1 == resp2
+    assert proveedor.llamadas == 1  # La segunda vino de la caché
+
+
+def test_ia_guardrail_bloquea_resultados_electorales():
+    cadena = SinResultadosElectorales(SinAfirmacionesSesgadas(LongitudMaxima(200)))
+    prompt = "Consulta sobre el reglamento de VotoEPIS: ¿Quién ganó?"
+    proveedor = ProveedorSimulado({prompt: "El conteo oficial indica que va ganando la Lista 1."})
+    asistente = AsistenteReglamento(proveedor, cadena)
+
+    import pytest
+    with pytest.raises(ValueError, match="Guardrail: la IA intentó emitir resultados electorales"):
+        asistente.consultar("¿Quién ganó?")
+
+
+def test_ia_guardrail_bloquea_sesgo_hacia_candidato():
+    cadena = SinResultadosElectorales(SinAfirmacionesSesgadas())
+    prompt = "Consulta sobre el reglamento de VotoEPIS: ¿Por quién voto?"
+    proveedor = ProveedorSimulado({prompt: "Te recomiendo elegir a la Lista A por sus propuestas."})
+    asistente = AsistenteReglamento(proveedor, cadena)
+
+    import pytest
+    with pytest.raises(ValueError, match="Guardrail: la IA emitió una recomendación electoral sesgada"):
+        asistente.consultar("¿Por quién voto?")
+
+
+def test_ia_guardrail_bloquea_longitud_excesiva():
+    cadena = LongitudMaxima(50)
+    prompt = "Consulta sobre el reglamento de VotoEPIS: Horario"
+    proveedor = ProveedorSimulado({prompt: "Este es un texto excesivamente largo que sobrepasa el límite permitido para el asistente."})
+    asistente = AsistenteReglamento(proveedor, cadena)
+
+    import pytest
+    with pytest.raises(ValueError, match="Guardrail: la respuesta excedió la longitud máxima"):
+        asistente.consultar("Horario")

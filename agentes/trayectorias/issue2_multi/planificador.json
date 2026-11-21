@@ -1,0 +1,20 @@
+[
+ {
+  "pensamiento": "Leo el issue para entender el defecto y los criterios de aceptación.",
+  "accion": "leer_archivo",
+  "args": {
+   "ruta": "issues/ISSUE-02.md"
+  }
+ },
+ {
+  "pensamiento": "Ubico la función afectada sin leer todo el código.",
+  "accion": "buscar",
+  "args": {
+   "patron": "def computar_votos_validos|def conteo"
+  }
+ },
+ {
+  "pensamiento": "Con el issue y la ubicación (servicio.py:118, usa conteo() de la línea 106) ya puedo planificar.",
+  "final": "PLAN: 1) Ejecutar tests/test_issue_02.py para reproducir el fallo. 2) Leer src/votacion/servicio.py alrededor de computar_votos_validos (línea 118) y conteo (línea 106). 3) Corregir computar_votos_validos para que devuelva solo las listas válidas, sin sumar blancos ni nulos a ningún candidato; no tocar tests/. 4) Ejecutar la prueba del issue y la suite completa. 5) Revisar el diff con ver_cambios antes de entregar."
+ }
+]
