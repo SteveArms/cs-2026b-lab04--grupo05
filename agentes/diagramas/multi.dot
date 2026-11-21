@@ -1,0 +1,14 @@
+digraph M {
+  graph [rankdir=TB, nodesep=0.35, ranksep=0.4, fontname="Arial", pad=0.2];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=14, margin="0.16,0.1"];
+  edge [fontname="Arial", fontsize=12, color="#444444"];
+  I [label="Issue #27", shape=note, fillcolor="#F2F2F2", color="#7F7F7F"];
+  PL [label="Planificador (gestor)\nsin herramientas\n(solo razona)", fillcolor="#EEF2F8", color="#1A3A5C"];
+  EJ [label="Ejecutor (actor)\nleer, buscar, editar,\npruebas, comandos permitidos", fillcolor="#FFF4E5", color="#C8310E"];
+  RV [label="Revisor (crítico)\nsolo lectura:\ndiff, buscar, pruebas", fillcolor="#EAF4EC", color="#1E7B34"];
+  H [label="Humano\n(aprueba el PR)", shape=ellipse, fillcolor="#1A3A5C", fontcolor="white"];
+  {rank=same; I; PL;}
+  {rank=same; EJ; RV; H;}
+  I -> PL; PL -> EJ [label=" plan"]; EJ -> RV [label=" resumen + diff"]; RV -> H [label=" APROBADO"];
+  RV -> EJ [label=" CAMBIOS SOLICITADOS\n (máx. 2 rondas)", style=dashed, color="#C8310E", fontcolor="#C8310E", constraint=false];
+}

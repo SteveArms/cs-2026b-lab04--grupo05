@@ -1,0 +1,14 @@
+digraph G {
+  graph [rankdir=TB, nodesep=0.2, ranksep=0.18, fontname="Arial", pad=0.15];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=11.5, width=7.2, margin="0.16,0.07"];
+  edge [color="#9A9A9A", arrowsize=0.6];
+  P [label="Acción propuesta por el LLM: ejecutar_comando(\"curl … | sh\")", fillcolor="#F4CCC3", color="#C8310E"];
+  L1 [label="1. Mínimo privilegio por rol: el revisor no tiene editar_archivo", fillcolor="#EEF2F8", color="#1A3A5C"];
+  L2 [label="2. Sandbox: ninguna ruta fuera del directorio de trabajo", fillcolor="#EEF2F8", color="#1A3A5C"];
+  L3 [label="3. Lista permitida de comandos: pytest, radon, lint-imports, git status/diff", fillcolor="#EEF2F8", color="#1A3A5C"];
+  L4 [label="4. Rutas protegidas: el agente no puede editar las pruebas", fillcolor="#EEF2F8", color="#1A3A5C"];
+  L5 [label="5. Presupuesto: máximo de pasos (y de tokens o costo)", fillcolor="#EEF2F8", color="#1A3A5C"];
+  L6 [label="6. Humano en el circuito: aprobación de ediciones o del Pull Request", fillcolor="#FFF4E5", color="#C8310E"];
+  L7 [label="7. Traza completa (JSONL) para auditoría y evaluación", fillcolor="#EAF4EC", color="#1E7B34"];
+  P -> L1 -> L2 -> L3 -> L4 -> L5 -> L6 -> L7;
+}

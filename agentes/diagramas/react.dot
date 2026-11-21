@@ -1,0 +1,13 @@
+digraph R {
+  graph [rankdir=LR, nodesep=0.5, ranksep=0.7, fontname="Arial", pad=0.2];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=12.5, margin="0.18,0.1", width=2.2];
+  edge [fontname="Arial", fontsize=10.5, color="#444444"];
+  O [label="Objetivo\n\"Resuelve el issue #27\"", fillcolor="#1A3A5C", fontcolor="white"];
+  T [label="Pensamiento\n\"La prueba del issue falla;\nbusco la función\"", fillcolor="#FFF4E5", color="#C8310E"];
+  A [label="Acción\nbuscar(\"def ventas_semanales\")", fillcolor="#EEF2F8", color="#1A3A5C"];
+  B [label="Observación\n\"ventas.py:17: def …\"", fillcolor="#EAF4EC", color="#1E7B34"];
+  F [label="Respuesta final\n(o límite de pasos)", fillcolor="#F2F2F2", color="#7F7F7F"];
+  O -> T -> A -> B;
+  B -> T [label="  se agrega al historial\n  y se repite", style=dashed, color="#C8310E", fontcolor="#C8310E"];
+  T -> F [label=" objetivo cumplido"];
+}

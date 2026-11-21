@@ -1,0 +1,16 @@
+digraph A {
+  graph [rankdir=TB, nodesep=0.5, ranksep=0.5, fontname="Arial", pad=0.2, newrank=true];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=12, margin="0.16,0.1"];
+  edge [fontname="Arial", fontsize=10, color="#444444"];
+  ENT [label="Entorno\n(repositorio, terminal,\nIssues, APIs)", fillcolor="#F2F2F2", color="#7F7F7F"];
+  subgraph cluster_ag { label="Agente"; fontname="Arial"; fontsize=13; style="rounded"; color="#1A3A5C"; penwidth=1.5;
+    LLM [label="LLM\n(razona y decide)", fillcolor="#C8310E", fontcolor="white", color="#C8310E", shape=ellipse];
+    PLAN [label="Planificación\n(descomponer, reflexionar)", fillcolor="#FFF4E5", color="#C8310E"];
+    MEM [label="Memoria\ncorto plazo: historial\nlargo plazo: archivos, BD vectorial", fillcolor="#EEF2F8", color="#1A3A5C"];
+    TOOLS [label="Herramientas\nleer, buscar, editar,\nejecutar pruebas", fillcolor="#EAF4EC", color="#1E7B34"];
+    POL [label="Política / guardrails", fillcolor="#1A3A5C", fontcolor="white"];
+  }
+  PLAN -> LLM [dir=both]; MEM -> LLM [dir=both];
+  LLM -> POL [label=" acción propuesta"]; POL -> TOOLS [label=" permitida"];
+  TOOLS -> ENT [label=" actúa"]; ENT -> LLM [label=" observación", style=dashed, constraint=false];
+}

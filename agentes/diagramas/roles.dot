@@ -1,0 +1,10 @@
+digraph R {
+  graph [rankdir=LR, nodesep=0.3, ranksep=0.35, fontname="Arial", pad=0.15];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=12, margin="0.14,0.08", width=2.3];
+  edge [color="#C8310E", penwidth=1.6, arrowsize=0.8];
+  E [label="Ejecutor\nel humano inicia y\nsupervisa cada tarea", fillcolor="#1A3A5C", fontcolor="white"];
+  V [label="Revisor\nel agente actúa; el humano\naprueba en puntos de control", fillcolor="#3E6189", fontcolor="white"];
+  C [label="Colaborador\nhumano y agente comparten\ncontexto y refinan juntos", fillcolor="#8FA8C8"];
+  G [label="Gobernador\nel humano fija objetivos,\nlímites y auditoría", fillcolor="#DCE4EF"];
+  E -> V -> C -> G;
+}
