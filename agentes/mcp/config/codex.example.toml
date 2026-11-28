@@ -1,0 +1,12 @@
+[mcp_servers.votoepis]
+command = "/ruta/al/repositorio/.venv/bin/python"
+args = ["agentes/mcp/servidor_mcp/votoepis_mcp.py"]
+cwd = "/ruta/al/repositorio"
+startup_timeout_sec = 20
+default_tools_approval_mode = "writes"
+
+[mcp_servers.votoepis.env]
+VOTOEPIS_OBSERVACIONES = "agentes/mcp/observaciones-host"
+
+[mcp_servers.votoepis.tools.registrar_observacion]
+approval_mode = "prompt"

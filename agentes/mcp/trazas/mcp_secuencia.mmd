@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant U as Revisor
+    participant H as Analista
+    participant S as VotoEPIS
+    H->>S: server/discover
+    S-->>H: Respuesta
+    H->>S: tools/list
+    S-->>H: 4 herramientas
+    H->>S: resources/read votoepis://reglamento
+    S-->>H: Respuesta
+    H->>S: tools/call resultados_parciales Delegados EPIS 2026
+    S-->>H: Error de herramienta. El agente corrige el argumento.
+    H->>S: tools/call resultados_parciales E-2026-DELEGADOS
+    S-->>H: PUBLICADA. Participación 100
+    H->>S: tools/call resultados_parciales E-2026-TERCIO
+    S-->>H: ABIERTA. Participación 40
+    H->>U: Solicita aprobación de escritura
+    U-->>H: Aprueba la observación
+    H->>S: tools/call registrar_observacion E-2026-DELEGADOS
+    S-->>H: Observación creada

@@ -86,15 +86,13 @@ def _participacion(eleccion) -> int:
 # ------------------------------------------------------------------ HERRAMIENTAS
 @mcp.tool(title="Listar elecciones", annotations=SOLO_LECTURA)
 def listar_elecciones() -> list[ResumenEleccion]:
-    """Lista las elecciones registradas con su código (eleccion_id), nombre y estado
-    (CONFIGURADA, ABIERTA, CERRADA, ESCRUTADA o PUBLICADA). No recibe parámetros."""
+    """Lista el código (eleccion_id), nombre y estado de cada elección. Sin parámetros."""
     return [{"eleccion_id": c, "nombre": e.nombre, "estado": e.estado} for c, e in ELECCIONES.items()]
 
 
 @mcp.tool(title="Estado de una elección", annotations=SOLO_LECTURA)
 def estado_eleccion(eleccion_id: str) -> EstadoEleccion:
-    """Estado de una elección: fase del ciclo de vida, si admite votos, hora de cierre (AAAA-MM-DD HH:MM),
-    opciones y participación (número de votantes que ya votaron). eleccion_id: código como E-2026-DELEGADOS."""
+    """Estado, apertura al voto, cierre, opciones y participación. eleccion_id: código de listar_elecciones."""
     codigo, e = _eleccion(eleccion_id)
     return {"eleccion_id": codigo, "nombre": e.nombre, "estado": e.estado, "admite_votos": e.admite_votos,
             "cierre": e.fin.strftime("%Y-%m-%d %H:%M") if e.fin else "",
@@ -103,9 +101,7 @@ def estado_eleccion(eleccion_id: str) -> EstadoEleccion:
 
 @mcp.tool(title="Resultados parciales", annotations=SOLO_LECTURA)
 def resultados_parciales(eleccion_id: str) -> Resultados:
-    """Participación y, SOLO si la elección está ESCRUTADA o PUBLICADA, el conteo por opción y los votos
-    válidos (sin blancos ni nulos). Antes del escrutinio 'conteo' y 'votos_validos' vienen en null (ADR-002).
-    eleccion_id: código como E-2026-DELEGADOS."""
+    """Participación por eleccion_id (código de listar_elecciones). Conteo y votos válidos sin blancos ni nulos solo en ESCRUTADA o PUBLICADA. Antes son null."""
     codigo, e = _eleccion(eleccion_id)
     if e.estado in ESTADOS_CON_RESULTADOS:
         return {"eleccion_id": codigo, "estado": e.estado, "participacion": _participacion(e),
@@ -121,9 +117,7 @@ _DATO_PERSONAL = re.compile(r"\b\d{8}\b|[\w.+-]+@[\w-]+\.[\w.]+")
 
 @mcp.tool(title="Registrar observación", annotations=ESCRITURA_SOLO_CREA)
 def registrar_observacion(eleccion_id: str, titulo: str, descripcion: str) -> str:
-    """Crea un archivo NUEVO observaciones/OBS-NN.md con una observación del comité sobre una elección.
-    No modifica ni borra nada existente. titulo: de 5 a 80 caracteres. descripcion: de 20 a 2000
-    caracteres con lo observado y la evidencia; SIN datos personales (DNI, código de 8 dígitos ni correos)."""
+    """Solo crea OBS-NN.md. eleccion_id: código de listar_elecciones. titulo: 5–80 caracteres. descripcion: evidencia en 20–2000 caracteres. Sin DNI, códigos de 8 dígitos ni correos."""
     codigo, e = _eleccion(eleccion_id)
     titulo, descripcion = titulo.strip(), descripcion.strip()
     if not 5 <= len(titulo) <= 80:
