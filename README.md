@@ -329,3 +329,40 @@ python orquestador.py --aprobar        # E6: un integrante aprueba cada edición
 python metricas.py                     # tabla, gráfico y diagramas de las trazas
 ```
 **Regla de oro:** el agente propone; el contrato y la política filtran; el humano aprueba.
+
+## Servidor MCP (Lab 11)
+
+VotoEPIS ofrece `listar_elecciones`, `estado_eleccion` y `resultados_parciales` en modo de solo lectura. `registrar_observacion` crea un archivo nuevo con aprobación del host. El [catálogo MCP](agentes/mcp/diseno/catalogo-mcp.md) detalla los recursos y prompts. La [decisión de arquitectura](docs/architecture/adr/011-exposicion-mcp.md) registra el alcance y las alternativas.
+
+Para conectar Codex CLI desde la raíz del proyecto:
+
+1. Instala los requisitos con `.venv/bin/python -m pip install -r agentes/mcp/requirements.txt`.
+2. Copia el [bloque de configuración](agentes/mcp/config/codex.example.toml) a `~/.codex/config.toml` y sustituye `/ruta/al/repositorio` por la ruta absoluta de tu copia.
+3. Abre una sesión nueva y comprueba las herramientas con `/mcp`. La configuración pide aprobación para `registrar_observacion` y guarda las escrituras del host en `agentes/mcp/observaciones-host/`.
+
+La [tabla de consultas](agentes/mcp/uso-en-host.md), el [análisis del protocolo](agentes/mcp/protocolo.md) y la [auditoría](agentes/mcp/seguridad.md) recogen los resultados del laboratorio.
+
+### Secuencia de la consulta del agente en E4
+
+```mermaid
+sequenceDiagram
+    participant U as Revisor
+    participant H as Analista
+    participant S as VotoEPIS
+    H->>S: server/discover
+    S-->>H: Respuesta
+    H->>S: tools/list
+    S-->>H: 4 herramientas
+    H->>S: resources/read votoepis://reglamento
+    S-->>H: Respuesta
+    H->>S: tools/call resultados_parciales Delegados EPIS 2026
+    S-->>H: Error de herramienta. El agente corrige el argumento.
+    H->>S: tools/call resultados_parciales E-2026-DELEGADOS
+    S-->>H: PUBLICADA. Participación 100
+    H->>S: tools/call resultados_parciales E-2026-TERCIO
+    S-->>H: ABIERTA. Participación 40
+    H->>U: Solicita aprobación de escritura
+    U-->>H: Aprueba la observación
+    H->>S: tools/call registrar_observacion E-2026-DELEGADOS
+    S-->>H: Observación creada
+```
