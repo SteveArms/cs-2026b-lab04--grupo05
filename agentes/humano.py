@@ -22,10 +22,10 @@ def _vista_previa(args: dict, max_lineas: int = 12) -> str:
             f"  + DESPUÉS:\n{recortar(args.get('despues', '')) if args.get('despues') else '      (se elimina el fragmento)'}")
 
 
-def pedir_respuesta(entrada=input, salida=print) -> str:
+def pedir_respuesta(entrada=input, salida=print, pregunta: str = "¿Aprueba esta edición? [s/n]: ") -> str:
     """Devuelve 's' o 'n'. Repite la pregunta ante cualquier otra respuesta."""
     while True:
-        r = entrada("¿Aprueba esta edición? [s/n]: ").strip().lower()
+        r = entrada(pregunta).strip().lower()
         if r in ("s", "n"):
             return r
         salida(f"Respuesta inválida {r!r}: escriba solo 's' o 'n'.")

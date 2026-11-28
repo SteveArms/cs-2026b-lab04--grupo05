@@ -1,0 +1,43 @@
+[
+ {
+  "pensamiento": "Antes de reportar resultados reviso el reglamento: qué se puede informar en cada estado.",
+  "accion": "leer_recurso",
+  "args": {
+   "uri": "votoepis://reglamento"
+  }
+ },
+ {
+  "pensamiento": "El reglamento permite el conteo solo tras el escrutinio. Consulto los resultados de Delegados EPIS 2026.",
+  "accion": "resultados_parciales",
+  "args": {
+   "eleccion_id": "Delegados EPIS 2026"
+  }
+ },
+ {
+  "pensamiento": "Usé el nombre en vez del código. El error lista los códigos válidos: uso E-2026-DELEGADOS.",
+  "accion": "resultados_parciales",
+  "args": {
+   "eleccion_id": "E-2026-DELEGADOS"
+  }
+ },
+ {
+  "pensamiento": "Ahora la participación de Tercio estudiantil 2026 (código E-2026-TERCIO).",
+  "accion": "resultados_parciales",
+  "args": {
+   "eleccion_id": "E-2026-TERCIO"
+  }
+ },
+ {
+  "pensamiento": "Delegados: 10 en blanco + 6 nulos = 16 de 100 votantes (16 %), supera el 15 %. Corresponde registrar una observación, sin datos personales. Es la única escritura: la política pedirá aprobación humana.",
+  "accion": "registrar_observacion",
+  "args": {
+   "eleccion_id": "E-2026-DELEGADOS",
+   "titulo": "Votos en blanco y nulos por encima del 15 %",
+   "descripcion": "En la elección Delegados EPIS 2026 (PUBLICADA) se registraron 10 votos en blanco y 6 votos nulos sobre una participación de 100 votantes, es decir, el 16 %, por encima del umbral del 15 % fijado por el comité. Se sugiere revisar la claridad de la papeleta y la difusión de las listas antes de la próxima elección. Fuente: resultados_parciales vía MCP."
+  }
+ },
+ {
+  "pensamiento": "Tengo todos los datos y la observación quedó registrada con aprobación humana.",
+  "final": "Reporte para el comité. (1) Delegados EPIS 2026 (PUBLICADA): participación de 100 votantes; votos válidos: Lista A 46 y Lista B 38, así que gana la Lista A por 8 votos. Hubo 10 votos en blanco y 6 nulos (16 %), por encima del 15 %, por lo que registré una observación para el comité, aprobada por el revisor humano. (2) Tercio estudiantil 2026 (ABIERTA): participación de 40 votantes hasta ahora; el conteo por lista no se informa antes del escrutinio (reglamento y ADR-002)."
+ }
+]
